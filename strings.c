@@ -52,24 +52,43 @@ void diminuiu_caps(char *string)
     }
 }
 
+/* Colocar o elemente em ind entre [] */
 void encapsula(char *string, size_t ind){
-    char aux1, aux2;
+    char aux;
+    size_t tam = strlen(string);
+    string[tam+1] = '[';
+    string[tam+2] = ']';
 
-    aux1 = string[ind+1];
-    for (size_t i = ind; i < strlen(string); ++i) {
-        string[i+1] = string[i];
-        aux2 = string[i+2];
-        string[i+2] = aux1;
-        aux1 = aux2;
+    while (tam != ind-1){
+        aux = string[tam];
+        string[tam] = string[tam+1];
+        if(tam == ind)
+            string[tam+1] = aux;
+        else{
+        string[tam+1] = string[tam+2];
+        string[tam+2] = aux;
+        }
+        tam--;
     }
+}
+
+/*Retorna 1 se for alfanumerico e zero cc.*/
+int ehAlfanumerico(char item)
+{
+    return ((item >= 48 && item <= 57) || (item >= 65 && item <= 90) ||
+            (item >= 97 && item <= 122) || item == ' ');
 }
 
 /*Coloca entre [] qualquer caracter não alfanumérico.*/
 void encapsula_caracteres(char *string)
 {
+    char item;
     for (size_t i = 0; i < strlen(string); i++){
-        if (string[i] > 122 || string[i] < 65 || (string[i] < 97 && string[i] > 90))
+        item = string[i];
+        if (!ehAlfanumerico(item)){
             encapsula(string, i);
+            i += 2;
+        }
     }
 
 }
@@ -80,7 +99,6 @@ int main()
 
     encapsula_caracteres(string);
     printf ("%s\n", string);
-
 
     free(string);
 
