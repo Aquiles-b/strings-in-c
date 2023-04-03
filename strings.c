@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -37,23 +38,49 @@ int tamanho_string(char *string)
 void aumenta_caps(char *string)
 {
     for (int i = 0; string[i] != '\0'; i++) {
-        if (string[i] > 96 )
+        if (string[i] > 96 && string[i] < 123)
             string[i] = string[i] - 32;
+    }
+}
+
+/*Modifica todos os caracteres da string para caixa baixa.*/
+void diminuiu_caps(char *string)
+{
+    for (int i = 0; string[i] != '\0'; i++) {
+        if (string[i] < 91 && string[i] > 64 )
+            string[i] = string[i] + 32;
+    }
+}
+
+void encapsula(char *string, size_t ind){
+    char aux1, aux2;
+
+    aux1 = string[ind+1];
+    for (size_t i = ind; i < strlen(string); ++i) {
+        string[i+1] = string[i];
+        aux2 = string[i+2];
+        string[i+2] = aux1;
+        aux1 = aux2;
     }
 }
 
 /*Coloca entre [] qualquer caracter não alfanumérico.*/
 void encapsula_caracteres(char *string)
 {
+    for (size_t i = 0; i < strlen(string); i++){
+        if (string[i] > 122 || string[i] < 65 || (string[i] < 97 && string[i] > 90))
+            encapsula(string, i);
+    }
 
 }
 
 int main()
 {
     char *string = ler_string();
-    aumenta_caps(string);
 
+    encapsula_caracteres(string);
     printf ("%s\n", string);
+
 
     free(string);
 
