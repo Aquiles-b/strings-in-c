@@ -354,14 +354,14 @@ int buscaBinaria(char vetor[], int tam, char valor, int* m)
 
 short letra_nao_utilizada(char letra, char* vet, int* tam)
 {
-    int ind;
+    int ind = 0;
     int existe = buscaBinaria(vet, *tam, letra, &ind);
 
     if(existe == -1){
         for (int i = *tam; i >= ind; i--) 
             vet[i] = vet[i-1];
 
-        tam++;
+        (*tam)++;
         vet[ind] = letra;
 
         return 1;
