@@ -300,11 +300,90 @@ short eh_palindromo(char* string)
 
     memcpy(p_tratada_rev, p_tratada, TAM);
     inverte_string(p_tratada_rev);
-    
+
     if(!strcmp(p_tratada, p_tratada_rev))
         return 1;
 
     return 0;
+}
+
+/*Mostra o indice das palavras da string que começa com uma letra ou
+ * digito informado em @digt. se nada for informado pega pelo stdin.*/
+void posPal(char* string, char* digt)
+{
+    int j = 0, ind_palavra = 0, vet[TAM];
+    char* pt;
+    if(!digt)
+        scanf("%c", digt);
+
+    pt = strtok(string, " ");
+    while(pt){
+        if(pt[0] == *digt){
+            vet[j] = ind_palavra;
+            j++;
+        }
+        pt = strtok(NULL, " ");
+        ind_palavra++;
+    }
+
+    for(int i = 0; i < j; i++)
+        printf ("%d ", vet[i]);
+
+    printf ("\n");
+}
+
+int aux_busca_binaria(char vetor[], int a, int b, char valor, int* m)
+{
+    if (a > b)
+        return -1;
+
+    *m = (b + a) / 2;
+    if (vetor[*m] == valor)
+        return *m;
+    if (valor > vetor[*m])
+        return aux_busca_binaria(vetor, *m + 1, b, valor, m);
+    return aux_busca_binaria(vetor, a, *m - 1, valor, m);
+}
+
+/*Se existir retorna o indice, caso contrario retorna -1.*/
+int buscaBinaria(char vetor[], int tam, char valor, int* m)
+{
+    return aux_busca_binaria(vetor, 0, tam, valor, m);
+}
+
+
+short letra_nao_utilizada(char letra, char* vet, int* tam)
+{
+    int ind;
+    int existe = buscaBinaria(vet, *tam, letra, &ind);
+
+    if(existe == -1){
+        for (int i = *tam; i >= ind; i--) 
+            vet[i] = vet[i-1];
+
+        tam++;
+        vet[ind] = letra;
+
+        return 1;
+    }
+
+    return 0;
+}
+
+void primPal(char* string)
+{
+    char* letras = malloc(sizeof(char)*TAM);
+    char* pt;
+    int tam = 0;
+
+    pt = strtok(string, " ");
+    while(pt){
+        if(letra_nao_utilizada(pt[0], letras, &tam)){
+            printf ("%c: ", pt[0]);
+            posPal(string, &pt[0]);
+        }
+            pt = strtok(NULL, " ");
+    }
 }
 
 
@@ -312,9 +391,7 @@ int main()
 {
     char* string = ler_string();
 
-    int i = eh_palindromo(string);
-
-    printf ("%d\n", i);
+    primPal(string);
 
     free(string);
 
