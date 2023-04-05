@@ -31,7 +31,7 @@ int tamanho_string(char *string)
     int i;
 
     for (i = 0; string[i] != '\0'; i++);
-    
+
     return i;
 }
 
@@ -66,8 +66,8 @@ void encapsula(char *string, size_t ind){
         if(tam == ind)
             string[tam+1] = aux;
         else{
-        string[tam+1] = string[tam+2];
-        string[tam+2] = aux;
+            string[tam+1] = string[tam+2];
+            string[tam+2] = aux;
         }
         tam--;
     }
@@ -77,7 +77,7 @@ void encapsula(char *string, size_t ind){
 int ehAlfanumerico(char item)
 {
     return ((item >= 48 && item <= 57) || (item >= 65 && item <= 90) ||
-            (item >= 97 && item <= 122) || item == ' ');
+    (item >= 97 && item <= 122) || item == ' ');
 }
 
 /*Coloca entre [] qualquer caracter não alfanumérico.*/
@@ -108,6 +108,7 @@ char** ler_linhas()
     return linhas;
 }
 
+/*Função interna do quickSort.*/
 int particiona(char** linhas, int a, int b)
 {
     int meio = a-1;
@@ -123,6 +124,7 @@ int particiona(char** linhas, int a, int b)
     return meio;
 }
 
+/*Função interna do quickSort.*/
 void auxQuickSort(char** linhas, int a, int b)
 {
     if (a >= b)
@@ -132,6 +134,7 @@ void auxQuickSort(char** linhas, int a, int b)
     auxQuickSort(linhas, meio + 1, b);
 }
 
+/*Retorna quantidade de linhas de um texto.*/
 int tam_texto(char** linhas)
 {
     int tam = 0;
@@ -141,11 +144,13 @@ int tam_texto(char** linhas)
     return tam;
 }
 
+/*Ordena usando quicksort de forma alfabetica.*/
 void ordena_texto(char** linhas)
 {
     auxQuickSort(linhas, 0, tam_texto(linhas)-1);
 }
 
+/*Imprime texto.*/
 void imprime_linhas(char** linhas)
 {
     int tam = tam_texto(linhas);
@@ -156,6 +161,7 @@ void imprime_linhas(char** linhas)
     }
 }
 
+/*Desaloca o texto.*/
 void destroi_texto(char** linhas)
 {
     int tam = tam_texto(linhas);
@@ -166,23 +172,104 @@ void destroi_texto(char** linhas)
     free(linhas);
 }
 
+/*Imprime as linhs do texto em ordem alfabetica.*/
 void imprime_linhas_ordem_alfabetica(char** linhas)
 {
-    char** linhas_ordenadas;
+    char** linhas_ordenadas = malloc(sizeof(char*)*TAM);
     memcpy(linhas_ordenadas, linhas, TAM);
 
     ordena_texto(linhas_ordenadas);
-    imprime_linhas(linhas);
     imprime_linhas(linhas_ordenadas);
-    imprime_linhas(linhas);
+    free(linhas_ordenadas);
+}
+
+/*Desloca os caracteres de um string a partir do indice @i substituindo o 
+ * @i por @i+1.*/
+void desloca_caracteres_esquerda(char* string, size_t i)
+{
+    while(string[i] != '\0'){
+        string[i] = string[i+1];
+        i++;
+    }
+}
+
+/*remove todos os caracteres nao alfanumericos de uma string.*/
+void remove_caracteres_nao_alfanumericos(char* string)
+{
+    size_t i = 0;
+    while(string[i] != '\0'){
+        if (!ehAlfanumerico(string[i])){
+            desloca_caracteres_esquerda(string, i);
+            i--;
+        }
+        i++;
+    }
+}
+
+/*Remove caracteres repetidos em sequencia.*/
+void remove_caracter_repetido(char* string)
+{
+    size_t i = 0;
+    while(string[i] != '\0'){
+        if (string[i] == string[i+1]){
+            desloca_caracteres_esquerda(string, i);
+            i--;
+        }
+        i++;
+    }
+}
+
+/*Tenta achar a string @agulha dentro da string @palheiro.*/
+short compara_sequencia(char* agulha, char* palheiro, size_t j)
+{
+    size_t i, tam, comparador;
+    comparador = 1;
+    i = 1;
+    j++;
+    tam = tamanho_string(agulha);
+    while(agulha[i] != '\0'){
+        if(agulha[i] == palheiro[j]){
+            i++;
+            j++;
+            comparador++;
+        }else
+            return 0;
+    }
+    if (comparador == tam)
+        return 1;
+
+    return 0;
+}
+
+/*Retorn indice de onde começa a sequencia @agulha em palheiro
+ * -1 caso nao exista e -2 caso alguma string seja nula.*/
+int busca(char* agulha, char* palheiro)
+{
+    if (tamanho_string(agulha) == 0 || tamanho_string(palheiro) == 0)
+        return -2;
+
+    size_t j = 0;
+    while(palheiro[j] != '\0'){
+        if (agulha[0] == palheiro[j]){
+            if(compara_sequencia(agulha, palheiro, j))
+                return j;
+        }
+        j++;
+    }
+
+    return -1;
 }
 
 int main()
 {
-    char** linhas = ler_linhas();
-    imprime_linhas_ordem_alfabetica(linhas);
+    char* agulha = ler_string();
+    char* palheiro = ler_string();
 
-    destroi_texto(linhas);
+    size_t ind = busca(agulha, palheiro);
+    printf ("%zd\n", ind);
+
+    free(agulha);
+    free(palheiro);
 
     return 0;
 }

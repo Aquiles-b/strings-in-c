@@ -3,3 +3,6 @@ saida: strings.c
 
 run: saida
 	./saida
+
+clean: 
+	rm saida 
