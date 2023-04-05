@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#define TAM 64
 
 /*Le uma string da entrada padrão e retorna um ponteiro para ela.*/
 char *ler_string()
 {
-    char *string = malloc(sizeof(char)*64);
-    fgets(string, 64, stdin);
+    char *string = malloc(sizeof(char)*TAM);
+    fgets(string, TAM, stdin);
     string[strcspn(string, "\n")] = '\0';
 
     return string;
@@ -90,17 +91,98 @@ void encapsula_caracteres(char *string)
             i += 2;
         }
     }
+}
 
+/*Le linhas consecutivas do stdin, para quando a linhas for nula e
+ * retorna vetor de ponteiros para as linhas.*/
+char** ler_linhas()
+{
+    int i = -1;
+    char** linhas = malloc(sizeof(char*)*TAM);
+
+    do{
+        i++;
+        linhas[i] = ler_string();
+    }while(strlen(linhas[i]) != 0);
+
+    return linhas;
+}
+
+int particiona(char** linhas, int a, int b)
+{
+    int meio = a-1;
+    char* aux;
+    for (int i = a; i <= b; i++)
+        if (strcmp(linhas[i], linhas[b]) <= 0){
+            meio++;
+            aux = linhas[meio];
+            linhas[meio] = linhas[i];
+            linhas[i] = aux;
+        }
+
+    return meio;
+}
+
+void auxQuickSort(char** linhas, int a, int b)
+{
+    if (a >= b)
+        return;
+    int meio = particiona(linhas, a, b);
+    auxQuickSort(linhas, a, meio - 1);
+    auxQuickSort(linhas, meio + 1, b);
+}
+
+int tam_texto(char** linhas)
+{
+    int tam = 0;
+    while(strlen(linhas[tam]) != 0)
+        tam++;
+
+    return tam;
+}
+
+void ordena_texto(char** linhas)
+{
+    auxQuickSort(linhas, 0, tam_texto(linhas)-1);
+}
+
+void imprime_linhas(char** linhas)
+{
+    int tam = tam_texto(linhas);
+    int i = 0;
+    while(i < tam){
+        puts(linhas[i]);
+        i++;
+    }
+}
+
+void destroi_texto(char** linhas)
+{
+    int tam = tam_texto(linhas);
+    for(int i = 0; i < tam; i++){
+        free(linhas[i]);
+        linhas[i] = NULL;
+    }
+    free(linhas);
+}
+
+void imprime_linhas_ordem_alfabetica(char** linhas)
+{
+    char** linhas_ordenadas;
+    memcpy(linhas_ordenadas, linhas, TAM);
+
+    ordena_texto(linhas_ordenadas);
+    imprime_linhas(linhas);
+    imprime_linhas(linhas_ordenadas);
+    imprime_linhas(linhas);
 }
 
 int main()
 {
-    char *string = ler_string();
+    char** linhas = ler_linhas();
+    imprime_linhas_ordem_alfabetica(linhas);
 
-    encapsula_caracteres(string);
-    printf ("%s\n", string);
-
-    free(string);
+    destroi_texto(linhas);
 
     return 0;
 }
