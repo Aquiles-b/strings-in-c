@@ -223,9 +223,8 @@ void remove_caracter_repetido(char* string)
 short compara_sequencia(char* agulha, char* palheiro, size_t j)
 {
     size_t i, tam, comparador;
-    comparador = 1;
-    i = 1;
-    j++;
+    comparador = 0;
+    i = 0;
     tam = tamanho_string(agulha);
     while(agulha[i] != '\0'){
         if(agulha[i] == palheiro[j]){
@@ -260,16 +259,64 @@ int busca(char* agulha, char* palheiro)
     return -1;
 }
 
+/*Remove caracteres especiais, deixa tudo em minusculo e retira os espaços.*/
+void trata_string(char* string)
+{
+    size_t i = 0;
+    diminuiu_caps(string);
+    remove_caracteres_nao_alfanumericos(string);
+    while(string[i] != '\0'){
+        if(string[i] == ' '){
+            desloca_caracteres_esquerda(string, i);
+            i--;
+        }
+        i++;
+    }
+}
+
+/*Inverte uma string.*/
+void inverte_string(char* string)
+{
+    size_t i = 0;
+    size_t tam = tamanho_string(string)-1;
+    char aux;
+
+    while(i < tam){
+        aux = string[tam];
+        string[tam] = string[i];
+        string[i] = aux;
+        i++;
+        tam--;
+    }
+}
+
+/*Retorna 1 se for palindromo e 0 c.c*/
+short eh_palindromo(char* string)
+{
+    char* p_tratada = malloc(sizeof(char)*TAM);
+    char* p_tratada_rev = malloc(sizeof(char)*TAM);
+    memcpy(p_tratada, string, TAM);
+    trata_string(p_tratada);
+
+    memcpy(p_tratada_rev, p_tratada, TAM);
+    inverte_string(p_tratada_rev);
+    
+    if(!strcmp(p_tratada, p_tratada_rev))
+        return 1;
+
+    return 0;
+}
+
+
 int main()
 {
-    char* agulha = ler_string();
-    char* palheiro = ler_string();
+    char* string = ler_string();
 
-    size_t ind = busca(agulha, palheiro);
-    printf ("%zd\n", ind);
+    int i = eh_palindromo(string);
 
-    free(agulha);
-    free(palheiro);
+    printf ("%d\n", i);
+
+    free(string);
 
     return 0;
 }
