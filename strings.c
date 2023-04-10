@@ -307,23 +307,49 @@ short eh_palindromo(char* string)
     return 0;
 }
 
+/*Devolve letra da palavra numero @ind.*/
+char primeira_letra_palavra(char* string, int ind, int* status)
+{
+    char letra = '?';
+    *status = 0;
+    int i = 0, palavra_atual= 0;
+    if(ind == 0){
+        *status = 1;
+        return string[0];
+    }
+    while(string[i] != '\0' && palavra_atual != ind){
+        if(string[i] == ' '){
+            palavra_atual++;
+        }
+        if(palavra_atual == ind){
+            if(!(string[i+1] == '\0')){
+                letra = string[i+1];
+                *status = 1;
+            }
+        }
+        i++;
+    }
+
+    return letra;
+}
+
 /*Mostra o indice das palavras da string que começa com uma letra ou
  * digito informado em @digt. se nada for informado pega pelo stdin.*/
 void posPal(char* string, char* digt)
 {
-    int j = 0, ind_palavra = 0, vet[TAM];
-    char* pt;
+    int j = 0, ind_palavra = 0, vet[TAM], status;
+    char pt;
     if(!digt)
         scanf("%c", digt);
 
-    pt = strtok(string, " ");
-    while(pt){
-        if(pt[0] == *digt){
+    pt = primeira_letra_palavra(string, 0, &status);
+    while(status){
+        if(pt == *digt){
             vet[j] = ind_palavra;
             j++;
         }
-        pt = strtok(NULL, " ");
         ind_palavra++;
+        pt = primeira_letra_palavra(string, ind_palavra, &status);
     }
 
     for(int i = 0; i < j; i++)
@@ -332,38 +358,18 @@ void posPal(char* string, char* digt)
     printf ("\n");
 }
 
-int aux_busca_binaria(char vetor[], int a, int b, char valor, int* m)
-{
-    if (a > b)
-        return -1;
-
-    *m = (b + a) / 2;
-    if (vetor[*m] == valor)
-        return *m;
-    if (valor > vetor[*m])
-        return aux_busca_binaria(vetor, *m + 1, b, valor, m);
-    return aux_busca_binaria(vetor, a, *m - 1, valor, m);
-}
-
-/*Se existir retorna o indice, caso contrario retorna -1.*/
-int buscaBinaria(char vetor[], int tam, char valor, int* m)
-{
-    return aux_busca_binaria(vetor, 0, tam, valor, m);
-}
-
-
 short letra_nao_utilizada(char letra, char* vet, int* tam)
 {
-    int ind = 0;
-    int existe = buscaBinaria(vet, *tam, letra, &ind);
+    int i = 0;
+    while(i < *tam){
+        if(vet[i] == letra)
+            i = *tam;
+        i++;
+    }
 
-    if(existe == -1){
-        for (int i = *tam; i >= ind; i--) 
-            vet[i] = vet[i-1];
-
+    if(i <= *tam){
+        vet[*tam] = letra;
         (*tam)++;
-        vet[ind] = letra;
-
         return 1;
     }
 
@@ -373,16 +379,17 @@ short letra_nao_utilizada(char letra, char* vet, int* tam)
 void primPal(char* string)
 {
     char* letras = malloc(sizeof(char)*TAM);
-    char* pt;
-    int tam = 0;
+    char pt;
+    int tam = 0, palavra = 0, status;
 
-    pt = strtok(string, " ");
-    while(pt){
-        if(letra_nao_utilizada(pt[0], letras, &tam)){
-            printf ("%c: ", pt[0]);
-            posPal(string, &pt[0]);
+    pt = primeira_letra_palavra(string, palavra, &status);
+    while(status){
+        if(letra_nao_utilizada(pt, letras, &tam)){
+            printf ("%c: ", pt);
+            posPal(string, &pt);
         }
-            pt = strtok(NULL, " ");
+        palavra++;
+        pt = primeira_letra_palavra(string, palavra, &status);
     }
 }
 
